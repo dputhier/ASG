@@ -6,3 +6,8 @@
 *_files
 articles
 .DS_Store
+*.aux
+*.fls
+*.out
+*.toc
+*.toc
