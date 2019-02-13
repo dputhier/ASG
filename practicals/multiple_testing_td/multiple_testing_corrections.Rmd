@@ -23,6 +23,34 @@ output:
 #css: ../../html/course.css
 ---
 
+```{r set_workdir}
+workdir <- "~/ASG_practicals/multiple_testing_corrections"
+dir.create(workdir, showWarnings = FALSE, recursive = TRUE)
+message("Working directory\t", workdir)
+setwd(workdir)
+
+```
+
+```{r load_libraries}
+message("Loading custom R libraries")
+## Load some libraries
+source('http://pedagogix-tagc.univ-mrs.fr/courses/statistics_bioinformatics/R-files/config.R')
+source(file.path(dir.util, "util_student_test_multi.R"))
+
+# get the URL base, from which data will be loaded
+url.base <- "http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/"
+
+## Load a library
+if (!require("qvalue")) {
+  source("http://bioconductor.org/biocLite.R")
+  biocLite("qvalue")
+}
+library(qvalue)
+
+
+```
+
+
   <script language="JavaScript" type="text/javascript">
     <!--
         function sizeTbl2(h,i) {
@@ -67,26 +95,31 @@ In order to get an intuition of the problems arising from multiple testing, we w
 ### Solutions
 
 
-```{r eval=TRUE}
-# get the URL base, from which data will be loaded
-url.base <- "http://pedagogix-tagc.univ-mrs.fr/courses/ASG1/data/marrays/"
-
-## Load a library
-if (!require("qvalue")) {
-  source("http://bioconductor.org/biocLite.R")
-  biocLite("qvalue")
-}
-library(qvalue)
-```
-
 Load the dataset from DeBoer et al (2009).
 
-```{r eval=TRUE}
+```{r load_data, eval=TRUE}
+## Download expression data if not already here
+expr.file <- "GSE13425_Norm_Whole.txt"
+if (!file.exists(expr.file)) {
+  expr.url <- file.path(url.base, expr.file)
+  message("Downloading expression matrix from Web site\t", expr.url)
+  download.file(url = expr.url, destfile = expr.file)
+}
+
+
 ## Load expression values
-expr.matrix <-  read.table(file.path(url.base, "GSE13425_Norm_Whole.txt"),sep="\t", head=T, row=1)
+message("loading expression matrix\t", expr.file)
+expr.matrix <-  read.table(expr.file, sep = "\t", head = T, row = 1)
 
 ## Load phenotypic data
-pheno <- read.table(file.path(url.base, 'phenoData_GSE13425.tab'), sep='\t', head=TRUE, row=1)
+pheno.file <- 'phenoData_GSE13425.tab'
+if (!file.exists(pheno.file)) {
+  pheno.url <- file.path(url.base, pheno.file)
+  message("Downloading pheno table from Web site\t", pheno.url)
+  download.file(url = pheno.url, destfile = pheno.file)  
+}
+message("Loading pheno table\t", pheno.file)
+pheno <- read.table(pheno.file, sep = '\t', head = TRUE, row = 1)
 
 ## Read the help of the rnorm() R function
 #?rnorm
@@ -114,8 +147,9 @@ e. Cast this matrix into an object of type *data.frame*, using the R command **a
 f. Assign names to the rows and columns of this random matrix  using the commands **rownames()** and **colnames()**.
 g. Display thedistribution of these random values with and historgram (function **hist()**). 
 
-```{r eval=TRUE}
+```{r random_matrix, eval=TRUE}
 ## Generate a matrix with random normal values
+message("Generating a matrix with random normal")
 n.samples <- ncol(expr.matrix)
 n.probesets <- nrow(expr.matrix)
 n.values <- n.probesets * n.samples
@@ -137,13 +171,14 @@ hist(as.matrix(rnorm.frame), breaks=100) ## Check the distribution of the random
 
 #### Permuting all the cells of the expression matrix
 
-```{r eval=TRUE}
+```{r rowwise_permutation, eval=TRUE}
 ## Read the help of the sample() R function
 # ?sample
 
 ## Question: did you understand the role of the "replace" option ? If not, re-read the help.
 
 ## Generate a matrix with expression values resampled from DenBoer
+message("Generating a row-wise permuted expression matrix")
 denboer.values <- unlist(expr.matrix, use.names = FALSE)
 denboer.perm.matrix <- as.data.frame(matrix(sample(x=denboer.values, size=n.values, replace=FALSE), ncol=n.samples, nrow=n.probesets))
 colnames(denboer.perm.matrix) <- colnames(expr.matrix) ## Name the columns with same sample IDs as DenBoer, to facilitate the susbequent tests
@@ -168,8 +203,9 @@ The **table()** command can be used either with a vector, to count the number of
 
 Note that the results can vary from trial to trial. When trying a few more times, we obtain the following results, where the hyperdiploid and TEL-AML1 were partly unbalanced in the two random groups.
 
-```{r eval=TRUE}
+```{r permute_labels, eval=TRUE}
 ## Another permutation trial
+message("Generating permuted class labels")
 cancer.type.permuted <- sample(cancer.type)
 table(cancer.type, cancer.type.permuted)
 
@@ -180,11 +216,11 @@ table(cancer.type, cancer.type.permuted)
 
 Although sometimes unbalanced, the permutation will always be very far from the true repartition of the samples, which gives the following table.
 
-```{r eval=TRUE}
+```{r confusion_table, eval=TRUE}
 ## trivial comparison between the cancer.types and themselves, 
 ## for the sake of comparison with the confusion table of the 
 ##random permutataion
-table(cancer.type,cancer.type)
+table(cancer.type, cancer.type)
 ```
 </div>
 
@@ -213,10 +249,6 @@ For each of the 3 control sets prepared in the previous section, and for the act
 #### Solutions
       
 ```{r eval=TRUE}
-## Load some libraries
-source('http://pedagogix-tagc.univ-mrs.fr/courses/statistics_bioinformatics/R-files/config.R')
-source(file.path(dir.util, "util_student_test_multi.R"))
-
 ## Define the constants for drawing the histograms of p-value densities
 pval.breaks <- 20 ## Number of class intervals for the p-value histograms
 threshold <- 0.01 ## Significance threshold, that will be applied successively to p-value, e-value, FWER and q-value
@@ -225,24 +257,28 @@ threshold <- 0.01 ## Significance threshold, that will be applied successively t
 par(mfrow=c(2,2))
 
 ## Run Welch test on normal-distributed random numbers
+message("Running welch test on normally distributed normal numbers")
 rnorm.welch <- t.test.multi(rnorm.frame[,samples.to.keep], cancer.type, volcano.plot=FALSE)
 print(sum(rnorm.welch$P.value <= threshold))## count the number of significant genes at a given FPR
 hist(rnorm.welch$P.value, breaks=pval.breaks, main="Random normal values") ## Plot a histogram of p-value densities
 abline(h=n.probesets / pval.breaks, col="darkgreen", lwd=2)
 
 ## Run Welch test on permuted matrix values
+message("Running welch test on row-wise permuted matrix")
 perm.matrix.welch <- t.test.multi(denboer.perm.matrix[,samples.to.keep], cancer.type, volcano.plot=FALSE)
 print(sum(perm.matrix.welch$P.value <= threshold))## count the number of significant genes at a given FPR
 hist(perm.matrix.welch$P.value, breaks=pval.breaks, main="Matrix-wise permuted expression values") ## Plot a histogram of p-value densities
 abline(h=n.probesets / pval.breaks, col="darkgreen", lwd=2)
 
-## Run Welch test on permuted samples
+## Run Welch test on permuted sample labels
+message("Running welch test with permuted sample labels")
 perm.labels.welch <- t.test.multi(expr.matrix[,samples.to.keep], cancer.type.permuted, volcano.plot=FALSE)
 print(sum(perm.labels.welch$P.value <= threshold))## count the number of significant genes at a given FPR
 hist(perm.labels.welch$P.value, breaks=pval.breaks, main="Permuted sample labels") ## Plot a histogram of p-value densities
 abline(h=n.probesets / pval.breaks, col="darkgreen", lwd=2)
 
 ## Run Welch test on the dataset from Den Boer (2009)
+message("Running welch test on Den Boer dataset")
 denboer.welch <- t.test.multi(expr.matrix[,samples.to.keep], cancer.type, volcano.plot=FALSE) 
 print(sum(denboer.welch$P.value <= threshold))## count the number of significant genes at a given FPR
 hist(denboer.welch$P.value, breaks=pval.breaks, main="DenBoer, 2009") ## Plot a histogram of p-value densities
@@ -322,6 +358,7 @@ After having estimated these three parameters for the DenBoer expression dataset
 ```{r eval=TRUE}
 ## Define a function that takes as input a vector of p-values, 
 ## and estimatesthe m0, m1 and pi0 parameters;
+message("Estimating the proportion of genes under H0 and H1")
 estimate.pi0 <- function(p.values, lambda=0.5) {
 
     ## We will store the numbers in a list
@@ -410,7 +447,8 @@ Count the numbers of significant probesets in the four datasets described above.
 #### Solutions
 
 ```{r eval=TRUE}
-print(threshold)	
+message("Counting the number of genes declared positive")
+print(paste("Significance threshold\t", threshold))
 
 ## Count the number of probesets declared "positive" in the random normal dataset
 sum(rnorm.welch$P.value <= threshold) 
@@ -459,6 +497,7 @@ The E-value is the expected number of false positives. This is the simplest and 
 #### Solutions
 
 ```{r eval=TRUE}
+message("Computing E-value")
 ## Compute the E-value from the P-value
 E.value <- rnorm.welch$P.value * n.probesets
 
@@ -533,6 +572,7 @@ The reasoning for computing the FWER is the following. Let us	consider a particu
 	  $$P(FP \gt 1) = 1 - P(FP=0) = 1 - (1-p)^n$$
 
 ```{r eval=TRUE}
+message("Computing the FWER")
 ## The computation of the raw formula is imprecise (cannot report values << 1e-16)
 ## rnorm.welch$FWER <- 1 - (1 - rnorm.welch$P.value)^n.probesets
 rnorm.welch$FWER <- pbinom(q=0, size=n.probesets, prob=rnorm.welch$P.value, lower.tail=FALSE)
@@ -555,10 +595,12 @@ sum(denboer.welch$FWER <= threshold) ##  873
 min(denboer.welch$FWER) ## 0 !
 
 ## Compare the E-value and FWER
-plot(denboer.welch$E.value, denboer.welch$FWER, log="xy", panel.first=grid())
+plot(denboer.welch$E.value, denboer.welch$FWER, 
+     log="xy", panel.first=grid())
 
 ## Compare E-value and FWER to P-value
-plot(denboer.welch$P.value, denboer.welch$E.value, log="xy", panel.first=grid(), pch=20)
+plot(denboer.welch$P.value, denboer.welch$E.value, 
+     log="xy", panel.first=grid(), pch=20)
 lines(denboer.welch$P.value, denboer.welch$FWER, type="p", pch=1, col='grey')
 ```
 
@@ -598,7 +640,7 @@ Under the null hypothesis, the FDR can be estimated in the following way (hochbe
 
 ```{r eval=TRUE}
 ## Sort the Welch test result table set by increasing p-values
-denboer.welch.sorted <- denboer.welch[order(denboer.welch$P.value, decreasing=FALSE),]
+denboer.welch.sorted <- denboer.welch[order(denboer.welch$P.value, decreasing = FALSE), ]
 
 ## Check that the lowest p-values come on top of the sorted table ...
 head(denboer.welch.sorted)
@@ -610,7 +652,7 @@ tail(denboer.welch.sorted)
 denboer.welch.sorted$i <- 1:nrow(denboer.welch.sorted)
 
 ## Use the function defined above to estimate pi0
-denboer.param <- estimate.pi0(denboer.welch$P.value, lambda=0.5)
+denboer.param <- estimate.pi0(denboer.welch$P.value, lambda = 0.5)
 
 ## Compute the q.value
 denboer.welch.sorted$q.value <- denboer.param$pi0 * denboer.welch.sorted$P.value * n.probesets / denboer.welch.sorted$i
