@@ -7,14 +7,15 @@ font-import: http://fonts.googleapis.com/css?family=Risque
 font-family: Garamond
 transition: linear
 output:
-  ioslides_presentation:
-    colortheme: dolphin
+  slidy_presentation:
     fig_caption: yes
     fig_height: 6
     fig_width: 7
-    fonttheme: structurebold
     highlight: tango
+    incremental: yes
+    keep_md: yes
     smaller: yes
+    theme: cerulean
     toc: yes
     widescreen: yes
   html_document:
@@ -41,15 +42,14 @@ output:
     highlight: zenburn
     toc: yes
     toc_depth: 3
-  slidy_presentation:
+  ioslides_presentation:
+    colortheme: dolphin
     fig_caption: yes
     fig_height: 6
     fig_width: 7
+    fonttheme: structurebold
     highlight: tango
-    incremental: yes
-    keep_md: yes
     smaller: yes
-    theme: cerulean
     toc: yes
     widescreen: yes
 ---
