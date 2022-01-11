@@ -1,5 +1,4 @@
-
-## ------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------
 g <- 75 ## Number of submitted genes
 k <- 59 ## Size of the selection, i.e. submitted genes with at least one annotation in GO biological processes
 m <- 611 ## Number of "marked" elements, i.e. genes associated to this biological process
@@ -8,7 +7,7 @@ n <- N - m ## Number of "non-marked" elements, i.e. genes not associated to this
 x <- 19 ## Number of "marked" elements in the selection, i.e. genes of the group of interest that are associated to this biological process
 
 
-## ------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------
 
 ## Percent of the gene selection involved in "cell cycle". This
 ## corresponds to the "%" column returned by DAVID.
@@ -30,7 +29,7 @@ x <- 19 ## Number of "marked" elements in the selection, i.e. genes of the group
     
 
 
-## ------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------
 ## Define the range of possible values for x.
 ## The number of marked elements in the selection can neither be 
 ## higher than the size of the selection, nor higher than the 
@@ -55,9 +54,9 @@ text(x, max(dens)*1.20, labels=paste("x=", x), col="red", font=2)
   
 
 
-## ------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------
 
-## Plot the p-value distribution with logarithmic axes
+## Plot the probability distribution with logarithmic axes
 plot (x.range, dhyper(x=x.range, m=m, n=n, k=k), type="l", lwd=2, col="blue", main="Hypergeometric density (log Y scale)", xlab="x = marked elements in the selection", ylab="density = P(X=x)", log="y", panel.first=grid())
 
 ## Arrow indicating expected value
@@ -71,20 +70,20 @@ text(x, dens[x+1]*1e-15, labels=paste("x=", x), col="red", font=2)
 
 
 
-## ------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------
 print(dhyper(x=k, m=m, n=n, k=k))
 
 
-## ------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------
 p.value <-  phyper(q=x -1, m=m, n=n, k=k, lower.tail=FALSE)
 
 
-## ------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------
       help(phyper)
     
 
 
-## ------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------
 ## Compute the distribution of P-values (for all possible values of x).
 p.values <- phyper(q=x.range -1, m=m, n=n, k=k, lower.tail=FALSE)
 
@@ -101,7 +100,7 @@ legend("topright", legend=c("P-value", "density"), lwd=2, col=c("violet", "blue"
 
 
 
-## ------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------
 ## Plot the P-value distribution with a logarithmic Y scale
 
 plot(x.range, p.values,  type="l", lwd=2, col="violet", main="Hypergeometric P-value (log Y scale)", xlab="x = marked elements in the selection", ylab="P-value = P(X>=x); log scale", panel.first=grid(), log='y')
@@ -117,7 +116,7 @@ text(0, p.value*1e-5, labels=paste("p-val=", signif(digits=2, p.value), sep=""),
 
 
 
-## ------------------------------------------------------------------------
+## ----------------------------------------------------------------------------------------------------------
 
 ## Prepare a two-dimensional contingency table
 contingency.table <- data.frame(matrix(nrow=2, ncol=2))
@@ -172,5 +171,4 @@ names(exp.contingency.table) <- c(names(contingency.table), "total")
 rownames(exp.contingency.table) <- c(rownames(contingency.table), "total")
 print(exp.contingency.table)
   
-
 
