@@ -42,7 +42,8 @@ To get the dataset, you need to install the pasilla library from Bioconductor th
 
 ```{r}
 ## Install the library if needed then load it
-if(!require("pasilla")){
+if (!require("pasilla")){
+  message("Installing Bioconductor pasilla library")
   source("http://bioconductor.org/biocLite.R")
   biocLite("pasilla")
 }

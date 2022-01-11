@@ -3,6 +3,13 @@ title: "Exploring Student test with microarray data - Student $t$ statistics"
 author: "Jacques van Helden"
 date: '`r Sys.Date()`'
 output:
+  pdf_document:
+    fig_caption: no
+    highlight: zenburn
+    toc: yes
+    toc_depth: 2
+  md_document:
+    variant: markdown_github
   html_document:
     code_folding: hide
     fig_caption: no
@@ -11,13 +18,6 @@ output:
     toc: yes
     toc_depth: 3
     toc_float: yes
-  md_document:
-    variant: markdown_github
-  pdf_document:
-    fig_caption: no
-    highlight: zenburn
-    toc: yes
-    toc_depth: 2
   word_document:
     toc: no
     toc_depth: 2
@@ -684,7 +684,7 @@ par(mfrow=c(1,1))
 
 * * * * * * *
 
-### Means versus variances
+### Mean versus variance
 
 #### Q7. Draw a plot showing the standard deviation (all samples of all groups together) as a function of the mean expression value.
 
