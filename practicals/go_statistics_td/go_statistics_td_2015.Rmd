@@ -40,6 +40,10 @@ pre:not(.sourceCode) > code {
 hr {
   color: grey !important;
 }
+
+.hideshow {
+  color: #007FB0;
+}
 </style>
 
 
