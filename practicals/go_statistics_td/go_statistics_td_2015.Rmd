@@ -16,7 +16,7 @@ output:
   word_document: default
 ---
 
-* * * * * *
+
 
 <script type="">
     $(function() {
@@ -55,7 +55,7 @@ is essentially a tutorial, based on the result returned by David in the previous
 coordinates**](../genomic_coord_td/index.html).
 
 In this tutorial, we hade submitted a set of predicted E2F target genesc(see file [M00920\_targets.txt](../genomic_coord_results/M00920_targets.txt)) to
-the Web tool [DAVID](http://david.abcc.ncifcrf.gov/home.jsp), to compare it to various catalogues of functional annotations (Gene Ontology, KEGG, ...). DAVID returned a table reporting the functional classes for which our gene set showed significant enrichment.
+the Web tool [DAVID](http://david.ncifcrf.gov/home.jsp), to compare it to various catalogues of functional annotations (Gene Ontology, KEGG, ...). DAVID returned a table reporting the functional classes for which our gene set showed significant enrichment.
 
 The goal of this tutorial is to reproduce the calculation of the significance. We will show two distinct ways to model the problem:
 
@@ -277,7 +277,7 @@ text(0, p.value*1e-5, labels=paste("p-val=", signif(digits=2, p.value), sep=""),
 
 #### Questions
 
-Did we obtain the same P-value as DAVID ? If not, read [David help page](http://david.abcc.ncifcrf.gov/helps/functional_annotation.html#fisher) and try to understand the reason for the difference.
+Did we obtain the same P-value as DAVID ? If not, read [David help page](http://david.ncifcrf.gov/helps/functional_annotation.html#fisher) and try to understand the reason for the difference.
 
 This will be further discussed during the practicals.
 
