@@ -296,7 +296,7 @@ colnames(contingency.table) <- c("class.member", "non.member")
 contingency.table["predicted.target", "class.member"] <- x ## Number of marked genes in the selection
 contingency.table["predicted.target", "non.member"] <- k - x ## Number of non-marked genes in the selection
 contingency.table["non.predicted", "class.member"] <- m - x ## Number of marked genes outside of the selection
-contingency.table["non.predicted", "non.member"] <- n - (k - x) ## Number of non-marked genes in the selection
+contingency.table["non.predicted", "non.member"] <- n - (k - x) ## Number of non-marked genes outside the selection
 
 
 print(contingency.table)
