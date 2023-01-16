@@ -155,7 +155,7 @@ table(expDesign$strain)
 
 ## Define a strain-specific color for each sample,
 ## and add it as a supplementary column to the phenotypic data
-col.strain <- c("WT"="green","Snf"="orange") # Choose one color per strain
+col.strain <- c(WT="green", Snf="orange") # Choose one color per strain
 expDesign$color <- col.strain[as.vector(expDesign$strain)]
 
 ```
@@ -172,7 +172,7 @@ expDesign$color <- col.strain[as.vector(expDesign$strain)]
 <h4>Solution</h4>
       
 ```{r reads_per_sample_barplot, fig.path="figures/schurch2016_", fig.width=5, fig.height=8, fig.cap="**Figure: Million counts per sample. ** "}
-barplot(colSums(count.table)/1000000, 
+barplot(colSums(count.table)/1e6, 
         main="Total number of reads per sample (million)",
         col=expDesign$color, 
 #        names.arg = "", 
@@ -274,22 +274,27 @@ boxplot(log2(count.table + epsilon), col=expDesign$color, pch=".",
 
 ### Density plots
 
-Another way to get an intuition of the value distributions is to use the *plotDensity()* function, which draws one density curve for each sample.
+Another way to get an intuition of the value distributions is to use the *geom_density()* function (ggplot2 library), which draws one density curve for each sample.
 
 ```{r log2_counts_densities_per_sample, fig.path="figures/schurch2016_", fig.width=7, fig.height=5, fig.cap="Densities of log2(counts). Each curve corresponds to one sample. "}
 ## Density
-## We will require one function from the affy package
-if(!require("affy")){
-  source("http://bioconductor.org/biocLite.R")
-  biocLite("affy")  
+## We will require some functions from the reshape2 and ggplot2 packages
+if(!require("reshape2")){
+  install.packages("reshape2")
 }
-library(affy)
-plotDensity(log2(count.table + epsilon), lty=1, col=expDesign$color, lwd=2)
-grid()
-legend("topright", legend=names(col.strain), col=col.strain, lwd=2)
+
+if(!require("ggplot2")){
+  install.packages("ggplot2")
+}
+
+library(ggplot2)
+library(reshape2)
+count_melt <- reshape2::melt(log2(count.table + epsilon))
+head(count_melt)
+ggplot(data=count_melt, mapping=aes(x=value, color=variable)) + geom_density()
 ```
 
-**Beware**: the R function *plotDensity()* does not display the actual distribution of your values, but a polynomial fit. The representation thus generally looks smoother than the actual data. It is important to realize that, in some particular cases, the fit can lead to extrapolated values which can be misleading.
+**Beware**: the R function *geom_density()* does not display the actual distribution of your values, but a polynomial fit. The representation thus generally looks smoother than the actual data. It is important to realize that, in some particular cases, the fit can lead to extrapolated values which can be misleading.
 
 ## Scatter plots
 
@@ -377,13 +382,19 @@ In this section we will search for genes whose expression is affected by the gen
 
 ```{r require_DESeq2}
 ## Install the library if needed then load it
-if(!require("DESeq2")){
-  install.packages("lazyeval")
-  install.packages("ggplot2")
-  
-  source("http://bioconductor.org/biocLite.R")
-  biocLite("DESeq2")
+if (!require("BiocManager", quietly = TRUE)){
+    install.packages("BiocManager")
+    BiocManager::install()
 }
+
+if(!require("lazyeval")){
+  install.packages("lazyeval")
+}
+
+if(!require("DESeq2")){
+  BiocManager::install("DESeq2")
+}
+
 library("DESeq2")
 ```
 
@@ -469,16 +480,24 @@ head(estimSf(dds0))
 all(round(estimSf(dds0),6) == round(sizeFactors(dds.norm), 6))
 
 ## Checking the normalization
-par(mfrow=c(2,2),cex.lab=0.7)
+par(mfrow=c(1,2),cex.lab=0.7)
+
 boxplot(log2(counts(dds.norm)+epsilon),  col=col.pheno.selected, cex.axis=0.7, 
         las=1, xlab="log2(counts)", horizontal=TRUE, main="Raw counts")
 boxplot(log2(counts(dds.norm, normalized=TRUE)+epsilon),  col=col.pheno.selected, cex.axis=0.7, 
         las=1, xlab="log2(normalized counts)", horizontal=TRUE, main="Normalized counts") 
-plotDensity(log2(counts(dds.norm)+epsilon),  col=col.pheno.selected, 
-            xlab="log2(counts)", cex.lab=0.7, panel.first=grid()) 
-plotDensity(log2(counts(dds.norm, normalized=TRUE)+epsilon), col=col.pheno.selected, 
-            xlab="log2(normalized counts)", cex.lab=0.7, panel.first=grid()) 
 
+```
+```{r}
+if(!require("patchwork")){
+  install.packages("patchwork")
+}
+
+p1 <- ggplot(data=count_melt, mapping=aes(x=value, color=variable)) + geom_density() +  theme(legend.position = "none")
+count_norm_melt <- melt(log2(counts(dds.norm, normalized=TRUE)+epsilon))
+head(count_norm_melt)
+p2 <- ggplot(data=count_norm_melt, mapping=aes(x=value, color=Var2)) + geom_density() + theme(legend.position = "none")
+p1 + p2
 ```
 
 ## Count variance is related to mean
