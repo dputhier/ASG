@@ -63,12 +63,12 @@ transition: linear
 
 
 <script language="JavaScript" type="text/javascript">
-  <!--
+  
       function sizeTbl2(h,i) {
       var tbl = document.getElementById(i);
       tbl.style.display = h;
       }
-      // -->
+
 </script>
 
 
