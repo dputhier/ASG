@@ -63,12 +63,14 @@ transition: linear
 
 
 <script language="JavaScript" type="text/javascript">
-  
       function sizeTbl2(h,i) {
       var tbl = document.getElementById(i);
       tbl.style.display = h;
       }
-
+      function sizeTbl3(h,i) {
+      var tbl = document.getElementById( "id_" + i);
+      tbl.style.display = h;
+      }
 </script>
 
 
@@ -165,10 +167,10 @@ expDesign$color <- col.strain[as.vector(expDesign$strain)]
 - What can you say from this diagram?
 </div>
 
-<a href="javascript:sizeTbl2('block','1a')">View solution</a>|
-<a href="javascript:sizeTbl2('none','1a')">Hide solution</a>
+<a href="javascript:sizeTbl3('block','50')">View solution</a>|
+<a href="javascript:sizeTbl3('none','50')">Hide solution</a>
 
-<div id="1a"  style="overflow:hidden;display:none">
+<div id="50"  style="overflow:hidden;display:none">
 <h4>Solution</h4>
       
 ```{r reads_per_sample_barplot, fig.path="figures/schurch2016_", fig.width=5, fig.height=8, fig.cap="**Figure: Million counts per sample. ** "}
