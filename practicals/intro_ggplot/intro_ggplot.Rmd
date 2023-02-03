@@ -3,8 +3,8 @@ title: "Introduction à ggplot"
 author: "Denis Puthier"
 date: "21 August 2017"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -93,7 +93,7 @@ p.bp + geom_rug()
 p.bp + geom_jitter() + geom_rug()
 ```
 
-
+<!--
 ### Ajouter des barres d'erreurs
 
 Pour présenter l'utilisation des barres d'erreurs nous allons tout d'abord calculer la moyenne et l'écart-type dans chacune des classes.
@@ -123,6 +123,7 @@ ggplot(data=chickwts.summary, mapping=aes(x=feed, y=mean, fill=feed))  +
   theme(legend.position="top") +
   coord_flip()
 ```
+-->
 
 ## Facettes
 
